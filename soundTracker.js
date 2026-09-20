@@ -13,7 +13,7 @@ import {Component, Property} from '@wonderlandengine/api';
  * controlSource allows the soundTracker to toggle the accompanying audio-source when turning on, off or restting.
  * on() turns tracking on: parameter 1 resets positon or not| parameter 2 plays audio source or not.
  * off() turns tracking off: parameter 1 resets positon or not| parameter 2 stops audio source or not.
- * reset() resets positon: paramater 1 toggles tracking | parameter 2 resets audio source or not.
+ * reset()resets positon: paramater 1 toggles tracking | parameter 2 resets audio source or not.
  *
  * In normal operation, sound sources will go from spatial to perceived stereo(or mono) when within tracking range.
  * Performance is typically excellent but is ultimately dependent on ambient javascript load. 
@@ -39,10 +39,9 @@ export class SoundTracker extends Component {
         posZ: Property.bool(false),
         running: Property.bool(true),
         controlSource: Property.bool(false),
-
     };
-    start() {
-        this.sPos = [0.,0.,0.];
+    init(){
+    	this.sPos = [0.,0.,0.];
         if (this.grabStartPos) this.object.getPositionWorld(this.sPos);
         this.cPos = [];
         this.object.getPositionWorld(this.cPos);
@@ -51,7 +50,9 @@ export class SoundTracker extends Component {
         this.uPos = [0,0,0];
         this.object.getPositionWorld(this.uPos);
     }
-    update(dt) {
+    start() {
+    }
+    update() {
     	if(this.running){
     		this.object.getPositionWorld(this.cPos);
     		this.target.getPositionWorld(this.tPos);
@@ -118,27 +119,33 @@ export class SoundTracker extends Component {
         	this.object.setPositionWorld(this.uPos);
         }
     }
-    on(reset = false, source = true){
+    on(re = false, source = true){
     	if (this.running) return;
-    	if (reset) if (reset) {
-    		this.uPos = this.sPos;
-    		this.object.setPositionWorld(this.sPos);
-    		}
     	if (source && this.controlSource) this.object.getComponent('audio-source').play();
+    	if (re) {
+    		this.object.setPositionWorld(this.sPos);
+    		this.object.getPositionWorld(this.tPos);
+    		this.object.getPositionWorld(this.cPos);
+    		this.object.getPositionWorld(this.uPos);
+    		}
     	this.running = true;
     }
-    off(reset = false, source = true){
+    off(re = false, source = true){
     	if (!this.running) return;
     	this.running = false;
     	if (source && this.controlSource) this.object.getComponent('audio-source').stop();
-    	if (reset) {
-    		this.uPos = this.sPos;
+    	if (re) {
     		this.object.setPositionWorld(this.sPos);
+    		this.object.getPositionWorld(this.tPos);
+    		this.object.getPositionWorld(this.cPos);
+    		this.object.getPositionWorld(this.uPos);
     		}
     }
     reset(tog = false, source = false){
-    	this.uPos = this.sPos;
     	this.object.setPositionWorld(this.sPos);
+    	this.object.getPositionWorld(this.tPos);
+    	this.object.getPositionWorld(this.cPos);
+    	this.object.getPositionWorld(this.uPos);
     	if (source && this.controlSource) {
     		this.object.getComponent('audio-source').stop();
     		this.object.getComponent('audio-source').play();
